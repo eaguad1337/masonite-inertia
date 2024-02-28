@@ -36,7 +36,7 @@ class TestInertiaResponse(TestCase):
         view = self.application.make("inertia").render(component, props)
         self.application.make("response").view(view)
         test_response = self.application.make("tests.response").build(
-            self.application, request, self.application.make("response"), ""
+            self, self.application, request, self.application.make("response"), request.get_route()
         )
         return test_response
 
@@ -176,7 +176,3 @@ class TestInertiaResponse(TestCase):
 
     def test_customizing_root_view_in_controller(self):
         self.get("/custom-root").assertViewIs("spa_view")
-
-    def test_that_errors_flashed_in_session_are_shared(self):
-        res = self.get("/errors")
-        res.assertInertiaHasProp("errors", "An error occured.")

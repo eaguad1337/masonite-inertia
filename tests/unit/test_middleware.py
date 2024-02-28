@@ -21,6 +21,7 @@ class TestInertiaMiddleware(TestCase):
         super().setUp()
         self.setRoutes(
             Route.get("/basic", "TestController@basic").name("testing.basic"),
+            Route.get("/errors", "TestController@inertia_with_error").name("testing.errors"),
         )
 
     def tearDown(self):
@@ -46,7 +47,7 @@ class TestInertiaMiddleware(TestCase):
             handler="after",
         )
         test_response = self.application.make("tests.response").build(
-            self.application, request, self.application.make("response"), ""
+            self, self.application, request, self.application.make("response"), request.get_route()
         )
         return test_response
 
@@ -112,3 +113,8 @@ class TestInertiaMiddleware(TestCase):
 
         response = self.get("/basic")
         response.assertViewIs("spa_view")
+
+    def test_that_errors_flashed_in_session_are_shared(self):
+        self.application.make("middleware").http_middleware[0] = AppInertiaMiddleware
+        res = self.get("/errors")
+        res.assertInertiaHasProp("errors", "An error occured.")

@@ -3,6 +3,7 @@ import os
 
 from masonite.configuration import config
 from masonite.middleware import Middleware
+from masonite.validation import MessageBag
 
 # from masonite.utils.location import public_path
 
@@ -79,7 +80,10 @@ class InertiaMiddleware(Middleware):
         if not session.has("errors"):
             return {}
         else:
-            return session.get("errors")
+            if isinstance(session.get("errors"), MessageBag):
+                return session.get("errors").all()
+            else:
+                return session.get("errors")
 
     def share(self, request):
         """Defines the props that are shared by default. Can be overriden."""
